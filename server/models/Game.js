@@ -5,6 +5,7 @@
 *
 *
 */
+
 // Require mongoose
 var mongoose = require("mongoose");
 /* Import dependencies, require mongoose */
@@ -14,12 +15,14 @@ var UserSchema = new Schema({
   // name: a unique String
   username: {
     type: String,
-    unique: true
+    unique: true,
+    trim: true
   },
-  password: [{
+  password: {
     type: String,
+    trim: true,
     unique: true
-  }]
+  }
 });
 
 /* Set up database schema */
@@ -27,3 +30,4 @@ var Game = mongoose.model("Game", UserSchema);
 
 // Export the user model
 module.exports = Game;
+

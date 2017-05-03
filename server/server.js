@@ -15,6 +15,14 @@ var passport = require("./config/config");
 var session = require("express-session");
 var path = require("path");
 
+/* Require models */
+var Game = require("./models/Game.js");
+
+
+/* Set up the PORT and require the models */
+var PORT = process.env.PORT || 3000;
+var db = require("./models/Game");
+
 
 /* Create express app */
 var app = express();
@@ -22,12 +30,9 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(bodyParser.json());
-app.use(express.static("public"));
+app.use(express.static(process.cwd() + "/../public"));
 
 
-/* Set up the PORT and require the models */
-var PORT = process.env.PORT || 3000;
-var db = require("./models/Game");
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
 mongoose.Promise = Promise;
@@ -45,8 +50,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-/* Require models */
-var Game = require("./models/Game.js");
+
 
 // Use morgan and body parser with our app
 app.use(logger("dev"));
@@ -69,29 +73,49 @@ db.once("open", function() {
 });
 
 /* Routes config */
-  app.get("/", function(req, res) {
+  // app.get("/", function(req, res) {
 
-    res.sendFile(path.join(__dirname + "/../public/index.html"));
-  });
+  //   res.sendFile(path.join(__dirname + "/../public/index.html"));
+  // });
 
-app.get("/game", function(req, res) {
-  // Find all users in the user collection with our User model
-  Game.find({}, function(error, doc) {
-    // Send any errors to the browser
+app.post("/submit", function(req, res) {
+  var newUser = new Game(req.body);
+
+  newUser.save(function(error, doc) {
     if (error) {
       res.send(error);
     }
-    // Or send the doc to the browser
     else {
-      res.send(doc);
+      res.redirect("/game");
     }
   });
 });
 
+
+// app.get("/game", function(req, res) {
+//   // Find all users in the user collection with our User model
+//   Game.find({}, function(error, doc) {
+//     // Send any errors to the browser
+//     if (error) {
+//       res.send(error);
+//     }
+//     // Or send the doc to the browser
+//     else {
+//       res.send(doc);
+//     }
+//   });
+// });
+
+
+// for create react app, thsi works to route from login to game
+// app.get('*', function(req, res) {
+//     res.sendFile(path.join(__dirname, './../client/build/index.html'));
+// });
 
 /* Start express server */
 // Listen on Port 3000
 app.listen(3000, function() {
   console.log("App running on port 3000!");
 });
+
 
