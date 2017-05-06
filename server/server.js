@@ -73,12 +73,11 @@ db.once("open", function() {
 });
 
 /* Routes config */
-  // app.get("/", function(req, res) {
+app.get('*', function(req, res) {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
-  //   res.sendFile(path.join(__dirname + "/../public/index.html"));
-  // });
-
-app.post("/submit", function(req, res) {
+app.post("/signup", function(req, res) {
   var newUser = new Game(req.body);
 
   newUser.save(function(error, doc) {
@@ -86,10 +85,36 @@ app.post("/submit", function(req, res) {
       res.send(error);
     }
     else {
-      res.redirect("/game");
+      res.redirect("/");
     }
   });
 });
+
+app.post("/signin", function(req, res, err) {
+  /*
+  find a user with a username of req.body.username and req.body.password
+  check if true, if true then set session, redirect to game
+  if false, err
+  */
+
+  Game.findOne({ username: req.body.username, password: req.body.password },function(err, resDoc){
+   console.log("this hit");
+ //   console.log(req);
+  // console.log(typeof resDoc);
+    if (resDoc == null) {
+
+      res.redirect("/")
+      
+    }
+    else {
+      // res.redirect("/game");
+      console.log(resDoc.username)
+      console.log(resDoc)
+      res.redirect("http://localhost:8080");
+    }
+  });
+});
+
 
 
 // app.get("/game", function(req, res) {
