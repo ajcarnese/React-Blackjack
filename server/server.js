@@ -30,7 +30,8 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(bodyParser.json());
-app.use(express.static(process.cwd() + "/../public"));
+app.use(express.static(path.join(__dirname , "../public")));
+app.use(express.static(path.join(__dirname , "../client/build")));
 
 
 
@@ -59,7 +60,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 // Database configuration with mongoose
-mongoose.connect("mongodb://localhost/react-blackjack");
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/react-blackjack");
 var db = mongoose.connection;
 
 // Show any mongoose errors
@@ -73,9 +74,10 @@ db.once("open", function() {
 });
 
 /* Routes config */
-app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
+  // app.get("/", function(req, res) {
+
+  //   res.sendFile(path.join(__dirname + "/../public/index.html"));
+  // });
 
 app.post("/signup", function(req, res) {
   var newUser = new Game(req.body);
@@ -98,7 +100,7 @@ app.post("/signin", function(req, res, err) {
   */
 
   Game.findOne({ username: req.body.username, password: req.body.password },function(err, resDoc){
-   console.log("this hit");
+ //   console.log("this hit");
  //   console.log(req);
   // console.log(typeof resDoc);
     if (resDoc == null) {
@@ -110,7 +112,7 @@ app.post("/signin", function(req, res, err) {
       // res.redirect("/game");
       console.log(resDoc.username)
       console.log(resDoc)
-      res.redirect("http://localhost:8080");
+      res.redirect("/app");
     }
   });
 });
@@ -133,13 +135,17 @@ app.post("/signin", function(req, res, err) {
 
 
 // for create react app, thsi works to route from login to game
-// app.get('*', function(req, res) {
-//     res.sendFile(path.join(__dirname, './../client/build/index.html'));
-// });
+app.get("/app", function(req, res) {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
+
+app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname, './../public/index.html'));
+});
 
 /* Start express server */
 // Listen on Port 3000
-app.listen(3000, function() {
+app.listen(PORT, function() {
   console.log("App running on port 3000!");
 });
 
